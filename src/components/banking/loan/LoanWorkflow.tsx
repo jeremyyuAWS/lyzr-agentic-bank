@@ -5,6 +5,7 @@ import LoanStatus from './LoanStatus';
 import DocumentVerificationView from '../document/DocumentVerificationView';
 import AIDecisionExplainer from '../shared/AIDecisionExplainer';
 import LoanPortfolioIntegration from './LoanPortfolioIntegration';
+import EnhancedAIExplanation from '../shared/EnhancedAIExplanation';
 import { Layers, CheckCircle, AlertCircle, FileText, Calculator, TrendingUp } from 'lucide-react';
 
 const LoanWorkflow: React.FC = () => {
@@ -37,35 +38,40 @@ const LoanWorkflow: React.FC = () => {
       score: 85, // Score out of 100
       weight: 30, // Weight as percentage
       description: "Your credit score of 715 indicates good creditworthiness, though it's below our premium threshold of 740.",
-      impact: 'positive' as const
+      impact: 'positive' as const,
+      confidence: 92
     },
     {
       name: 'Debt-to-Income Ratio',
       score: 75,
       weight: 25,
       description: 'Your DTI ratio of 32% is within our acceptable range but approaching the upper limit of 36%.',
-      impact: 'neutral' as const
+      impact: 'neutral' as const,
+      confidence: 88
     },
     {
       name: 'Employment History',
       score: 90,
       weight: 20,
       description: '4+ years with current employer demonstrates strong employment stability.',
-      impact: 'positive' as const
+      impact: 'positive' as const,
+      confidence: 95
     },
     {
       name: 'Loan-to-Value Ratio',
       score: 80,
       weight: 15,
       description: 'Your LTV ratio of 78% is below our 80% threshold, reducing risk.',
-      impact: 'positive' as const
+      impact: 'positive' as const,
+      confidence: 90
     },
     {
       name: 'Payment-to-Income Ratio',
       score: 65,
       weight: 10,
       description: 'The proposed loan payment would be 28% of your monthly income, which is at the upper end of our comfort range.',
-      impact: 'neutral' as const
+      impact: 'neutral' as const,
+      confidence: 85
     }
   ];
   
@@ -145,7 +151,7 @@ const LoanWorkflow: React.FC = () => {
         {activeView === 'chat' ? (
           <div className="h-full p-4">
             <BankingChat 
-              mode="loan"
+              mode="loan" 
               onRequestDocumentVerification={handleDocumentVerificationRequest}
             />
           </div>
@@ -158,14 +164,30 @@ const LoanWorkflow: React.FC = () => {
           </div>
         ) : activeView === 'decision' ? (
           <div className="h-full p-4 space-y-4">
-            <AIDecisionExplainer
+            <EnhancedAIExplanation
               decision="approved"
-              title="Loan Application Approved"
-              contextType="loan"
-              factors={loanDecisionFactors}
+              decisionType="loan"
               confidenceScore={88}
-              alternateDecision="Approval with Modified Terms"
-              recommendationText="Based on your credit profile and income, we can offer you a personal loan of $25,000 with a 36-month term at 7.49% APR."
+              factors={loanDecisionFactors}
+              showVisualization={true}
+              alternatives={[
+                {
+                  decision: "Approval with Modified Terms",
+                  conditions: [
+                    "Increase down payment to 20%",
+                    "Add a co-signer to the loan"
+                  ],
+                  probability: 65
+                },
+                {
+                  decision: "Higher Interest Rate Offer",
+                  conditions: [
+                    "Accept a 0.5% higher interest rate",
+                    "Provide additional collateral"
+                  ],
+                  probability: 45
+                }
+              ]}
             />
             
             {/* Loan terms summary - would be more sophisticated in a real app */}

@@ -17,6 +17,7 @@ import {
   User,
   CheckCircle
 } from 'lucide-react';
+import EnhancedDocumentIntelligence from './EnhancedDocumentIntelligence';
 
 interface DocumentVerificationViewProps {
   documentType: string;
@@ -27,7 +28,7 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
   documentType,
   onComplete 
 }) => {
-  const { addDocument, documents } = useBankingContext();
+  const { addDocument, documents, addAuditEvent } = useBankingContext();
   
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -40,6 +41,7 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
     message: string;
     details?: string[];
   } | null>(null);
+  const [showEnhancedView, setShowEnhancedView] = useState(false);
   
   // Clean up when component unmounts
   useEffect(() => {
@@ -125,6 +127,9 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
     setVerificationStage('scanning');
     setProgress(0);
     
+    // Log to audit trail
+    addAuditEvent('Document Processing', `Started verification of ${documentType.replace(/-/g, ' ')} document`);
+    
     // Simulate progress
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -153,8 +158,8 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
           setVerificationResult({
             success,
             message: success ? 
-              `${documentType} verified successfully` : 
-              `${documentType} verification failed`,
+              `${documentType.replace(/-/g, ' ')} verified successfully` : 
+              `${documentType.replace(/-/g, ' ')} verification failed`,
             details: success ? 
               [
                 'Document appears genuine',
@@ -170,11 +175,19 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
           
           // Add document to context
           if (file) {
+            const docStatus = success ? 'verified' : 'rejected';
             addDocument({
               type: documentType as any,
-              status: success ? 'verified' : 'rejected',
+              status: docStatus,
               path: previewUrl || '',
             });
+            
+            // Log to audit trail
+            addAuditEvent('Document Verification', 
+              `Document ${documentType.replace(/-/g, ' ')} verification ${docStatus}: ${
+                success ? 'Document verified successfully' : 'Verification failed, document rejected'
+              }`
+            );
           }
           
           if (onComplete) {
@@ -195,6 +208,7 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
     setVerificationStage('upload');
     setProgress(0);
     setVerificationResult(null);
+    setShowEnhancedView(false);
   };
   
   // Retry verification
@@ -223,17 +237,51 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
         return documentType.replace(/-/g, ' ');
     }
   };
-  
+
+  // If we're showing the enhanced view, render the EnhancedDocumentIntelligence component
+  if (showEnhancedView) {
+    const docId = documents.find(d => d.type === documentType)?.id;
+    return (
+      <>
+        <EnhancedDocumentIntelligence 
+          documentId={docId} 
+          documentType={documentType}
+          showDemo={!docId}
+        />
+        <div className="text-right mt-4">
+          <button
+            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+            onClick={() => setShowEnhancedView(false)}
+          >
+            Back to Standard View
+          </button>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-4 py-3 bg-indigo-50 border-b border-indigo-100">
-        <h3 className="text-md font-medium text-indigo-900 flex items-center">
-          <FileText className="h-5 w-5 text-indigo-600 mr-2" />
-          {getDocumentTypeName()} Verification
-        </h3>
-        <p className="text-xs text-indigo-700">
-          Upload or take a photo of your {getDocumentTypeName().toLowerCase()} for secure verification
-        </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-md font-medium text-indigo-900 flex items-center">
+              <FileText className="h-5 w-5 text-indigo-600 mr-2" />
+              {getDocumentTypeName()} Verification
+            </h3>
+            <p className="text-xs text-indigo-700">
+              Upload or take a photo of your {getDocumentTypeName().toLowerCase()} for secure verification
+            </p>
+          </div>
+          {verificationStage !== 'upload' && (
+            <button
+              onClick={() => setShowEnhancedView(true)}
+              className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full hover:bg-indigo-200 transition-colors"
+            >
+              Show Enhanced Intelligence View
+            </button>
+          )}
+        </div>
       </div>
       
       {showCamera ? (
@@ -331,7 +379,7 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
                 </button>
               </div>
               
-              <div className="mt-6 bg-blue-50 border border-blue-100 rounded-lg p-3 flex">
+              <div className="mt-6 bg-blue-50 p-4 rounded-lg flex">
                 <Lock className="h-4 w-4 text-blue-500 mt-1 mr-2 flex-shrink-0" />
                 <div className="text-xs text-blue-700">
                   <p className="font-medium mb-1">Security Assurance</p>
@@ -568,6 +616,14 @@ const DocumentVerificationView: React.FC<DocumentVerificationViewProps> = ({
                         Try Again
                       </button>
                     )}
+                    
+                    <button
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm flex items-center"
+                      onClick={() => setShowEnhancedView(true)}
+                    >
+                      <ScanSearch className="h-4 w-4 mr-1.5" />
+                      View Enhanced Analysis
+                    </button>
                   </>
                 )}
               </div>

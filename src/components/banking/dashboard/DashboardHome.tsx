@@ -10,6 +10,9 @@ import DashboardStats from './DashboardStats';
 import WorkflowSummary from './WorkflowSummary';
 import SystemHealth from './SystemHealth';
 import FinancialHealthMetrics from './FinancialHealthMetrics';
+import CustomerJourneyMap from '../shared/CustomerJourneyMap';
+import RegulatoryFrameworkVisualization from '../compliance/RegulatoryFrameworkVisualization';
+import CrossProductRecommendationEngine from '../shared/CrossProductRecommendationEngine';
 
 const DashboardHome: React.FC = () => {
   const { setMode, setActiveTab, resetAll, addAuditEvent, auditTrail } = useBankingContext();
@@ -155,6 +158,17 @@ const DashboardHome: React.FC = () => {
           </div>
         </div>
         
+        {/* Cross-Product Recommendations */}
+        <div className="transition-all duration-700" 
+          style={{
+            opacity: animationState ? 1 : 0,
+            transform: animationState ? 'translateY(0)' : 'translateY(20px)',
+            transitionDelay: '300ms'
+          }}
+        >
+          <CrossProductRecommendationEngine maxRecommendations={3} showMatchScores={true} />
+        </div>
+        
         {/* Main Dashboard Content - Enhanced Agent Visualization */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* EnhancedAgentVisualization - Takes 2/3 of space on large screens */}
@@ -195,12 +209,34 @@ const DashboardHome: React.FC = () => {
           </div>
         </div>
         
+        {/* Customer Journey Map */}
+        <div className="transition-all duration-900"
+          style={{
+            opacity: animationState ? 1 : 0,
+            transform: animationState ? 'translateY(0)' : 'translateY(20px)',
+            transitionDelay: '800ms'
+          }}
+        >
+          <CustomerJourneyMap layout="horizontal" showFutureMilestones={true} />
+        </div>
+        
+        {/* GRC & Regulatory Framework */}
+        <div className="transition-all duration-900"
+          style={{
+            opacity: animationState ? 1 : 0,
+            transform: animationState ? 'translateY(0)' : 'translateY(20px)',
+            transitionDelay: '900ms'
+          }}
+        >
+          <RegulatoryFrameworkVisualization />
+        </div>
+        
         {/* Additional dashboard rows */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 transition-all duration-900"
           style={{
             opacity: animationState ? 1 : 0,
             transform: animationState ? 'translateY(0)' : 'translateY(20px)',
-            transitionDelay: '800ms'
+            transitionDelay: '1000ms'
           }}
         >
           {/* Agent Communication Flow */}
@@ -219,7 +255,7 @@ const DashboardHome: React.FC = () => {
           style={{
             opacity: animationState ? 1 : 0,
             transform: animationState ? 'translateY(0)' : 'translateY(20px)',
-            transitionDelay: '1000ms'
+            transitionDelay: '1100ms'
           }}
         >
           {/* System Health */}
