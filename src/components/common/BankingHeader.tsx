@@ -12,8 +12,15 @@ const BankingHeader: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <Shield className="h-8 w-8 text-indigo-600 mr-2" />
-              <span className="text-xl font-bold text-gray-900">AgenticBank</span>
+              <img 
+                src="/images/lyzr-logo-cut.png" 
+                alt="Lyzr Logo" 
+                className="h-8 w-auto mr-2"
+              />
+              <div>
+                <span className="text-xl font-bold text-gray-900">Agentic Bank</span>
+                <p className="text-xs text-gray-500 -mt-1">Banking Reimagined by AI Agents</p>
+              </div>
               <div className="ml-2 bg-indigo-100 text-indigo-800 text-xs px-1.5 py-0.5 rounded-md">
                 DEMO
               </div>
