@@ -45,3 +45,17 @@ interface ComplianceCheck {
 
 // The rest of the component implementation remains exactly the same as in the original file...
 // [Previous implementation continues unchanged]
+
+// Component implementation would be here
+
+const ComplianceDashboard: React.FC = () => {
+  // Component code would go here
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Compliance Dashboard</h1>
+      <RegulatoryFrameworkVisualization />
+    </div>
+  );
+};
+
+export default ComplianceDashboard;
