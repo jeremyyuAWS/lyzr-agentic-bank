@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useBankingContext } from '../../../context/BankingContext';
 import { ArrowRight, Shield, CreditCard, Landmark, Bot, RefreshCw, Terminal, BotMessageSquare, FileText } from 'lucide-react';
 import AgentVisualization from './AgentVisualization';
-import EnhancedAgentVisualization from './EnhancedAgentVisualization';
+import D3AgentNetworkVisualization from './D3AgentNetworkVisualization';
 import ActivityLog from './ActivityLog';
 import AgentMetrics from './AgentMetrics';
-import AgentCommunicationFlow from './AgentCommunicationFlow';
+import D3AgentCommunicationFlow from './D3AgentCommunicationFlow';
 import DashboardStats from './DashboardStats';
 import WorkflowSummary from './WorkflowSummary';
 import SystemHealth from './SystemHealth';
@@ -169,9 +169,9 @@ const DashboardHome: React.FC = () => {
           <CrossProductRecommendationEngine maxRecommendations={3} showMatchScores={true} />
         </div>
         
-        {/* Main Dashboard Content - Enhanced Agent Visualization */}
+        {/* Main Dashboard Content - D3 Agent Network Visualization */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* EnhancedAgentVisualization - Takes 2/3 of space on large screens */}
+          {/* D3AgentNetworkVisualization - Takes 2/3 of space on large screens */}
           <div className="lg:col-span-2 transition-all duration-900"
             style={{
               opacity: animationState ? 1 : 0,
@@ -190,7 +190,7 @@ const DashboardHome: React.FC = () => {
                 </div>
               </div>
               <div className="h-[400px]">
-                <EnhancedAgentVisualization />
+                <D3AgentNetworkVisualization />
               </div>
             </div>
           </div>
@@ -241,7 +241,7 @@ const DashboardHome: React.FC = () => {
         >
           {/* Agent Communication Flow */}
           <div className="lg:col-span-2 h-64">
-            <AgentCommunicationFlow />
+            <D3AgentCommunicationFlow />
           </div>
           
           {/* Workflow Summary */}
