@@ -4,11 +4,12 @@ import BankingChat from '../../banking/BankingChat';
 import LoanStatus from './LoanStatus';
 import DocumentVerificationView from '../document/DocumentVerificationView';
 import AIDecisionExplainer from '../shared/AIDecisionExplainer';
-import { Layers, CheckCircle, AlertCircle, FileText, Calculator } from 'lucide-react';
+import LoanPortfolioIntegration from './LoanPortfolioIntegration';
+import { Layers, CheckCircle, AlertCircle, FileText, Calculator, TrendingUp } from 'lucide-react';
 
 const LoanWorkflow: React.FC = () => {
   const { loan } = useBankingContext();
-  const [activeView, setActiveView] = useState<'chat' | 'status' | 'document' | 'decision'>('chat');
+  const [activeView, setActiveView] = useState<'chat' | 'status' | 'document' | 'decision' | 'portfolio'>('chat');
   const [documentType, setDocumentType] = useState<string>('tax-return');
   
   // Handler for document verification requests from the chat
@@ -111,6 +112,18 @@ const LoanWorkflow: React.FC = () => {
           
           <button
             className={`py-2 px-3 text-sm font-medium rounded-md flex items-center transition-all ${
+              activeView === 'portfolio'
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveView('portfolio')}
+          >
+            <TrendingUp className="h-4 w-4 mr-1.5" />
+            <span>Portfolio Impact</span>
+          </button>
+          
+          <button
+            className={`py-2 px-3 text-sm font-medium rounded-md flex items-center transition-all ${
               activeView === 'status'
                 ? 'bg-indigo-50 text-indigo-700 border border-indigo-100'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -193,6 +206,10 @@ const LoanWorkflow: React.FC = () => {
                 This offer is valid for the next 30 days
               </p>
             </div>
+          </div>
+        ) : activeView === 'portfolio' ? (
+          <div className="h-full p-4">
+            <LoanPortfolioIntegration />
           </div>
         ) : (
           <div className="h-full p-4">

@@ -8,6 +8,7 @@ import AgentCommunicationFlow from './AgentCommunicationFlow';
 import DashboardStats from './DashboardStats';
 import WorkflowSummary from './WorkflowSummary';
 import SystemHealth from './SystemHealth';
+import FinancialHealthMetrics from './FinancialHealthMetrics';
 
 const DashboardHome: React.FC = () => {
   const { setMode, setActiveTab, resetAll, addAuditEvent, auditTrail } = useBankingContext();
@@ -76,8 +77,19 @@ const DashboardHome: React.FC = () => {
           <DashboardStats />
         </div>
         
+        {/* Financial Health Metrics */}
+        <div className="transition-all duration-700"
+          style={{
+            opacity: animationState ? 1 : 0,
+            transform: animationState ? 'translateY(0)' : 'translateY(20px)',
+            transitionDelay: '100ms'
+          }}
+        >
+          <FinancialHealthMetrics />
+        </div>
+        
         {/* Banking Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 transition-all duration-700"
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-700"
           style={{
             opacity: animationState ? 1 : 0,
             transform: animationState ? 'translateY(0)' : 'translateY(20px)',
@@ -137,25 +149,6 @@ const DashboardHome: React.FC = () => {
             </p>
             <div className="flex items-center text-sm text-white/80 mt-auto pt-2 border-t border-white/20">
               <span>Get started</span>
-              <ArrowRight className="h-4 w-4 ml-1.5" />
-            </div>
-          </div>
-          
-          <div
-            className="bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-xl shadow-md p-6 cursor-pointer transition transform hover:-translate-y-1 hover:shadow-lg"
-            onClick={handleComplianceDashboard}
-          >
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-3">
-                <FileText className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="text-xl font-bold">GRC & Compliance</h3>
-            </div>
-            <p className="text-white/90 text-sm mb-4">
-              Monitor regulatory compliance across all banking operations with real-time risk evaluation.
-            </p>
-            <div className="flex items-center text-sm text-white/80 mt-auto pt-2 border-t border-white/20">
-              <span>View dashboard</span>
               <ArrowRight className="h-4 w-4 ml-1.5" />
             </div>
           </div>
