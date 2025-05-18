@@ -35,7 +35,7 @@ const LoanWorkflow: React.FC = () => {
       name: 'Credit Score',
       score: 85, // Score out of 100
       weight: 30, // Weight as percentage
-      description: 'Your credit score of 715 indicates good creditworthiness, though it's below our premium threshold of 740.',
+      description: "Your credit score of 715 indicates good creditworthiness, though it's below our premium threshold of 740.",
       impact: 'positive' as const
     },
     {
