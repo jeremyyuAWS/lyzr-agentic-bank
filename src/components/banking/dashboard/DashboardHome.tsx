@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useBankingContext } from '../../../context/BankingContext';
 import { ArrowRight, Shield, CreditCard, Landmark, Bot, RefreshCw, Terminal, BotMessageSquare, FileText } from 'lucide-react';
-import AgentVisualization from './AgentVisualization';
 import D3AgentNetworkVisualization from './D3AgentNetworkVisualization';
 import ActivityLog from './ActivityLog';
 import AgentMetrics from './AgentMetrics';
