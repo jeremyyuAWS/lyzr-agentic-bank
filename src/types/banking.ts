@@ -1,3 +1,5 @@
+import React from 'react';
+
 export type BankingMode = 'account-opening' | 'credit-card' | 'loan';
 
 export interface Customer {
@@ -147,10 +149,16 @@ export interface AuditLog {
 export interface ComplianceCheck {
   id: string;
   customerId: string;
-  checkType: 'kyc' | 'aml' | 'fraud' | 'sanctions';
-  status: 'passed' | 'failed' | 'pending-review';
+  checkType: 'kyc' | 'aml' | 'fraud' | 'sanctions' | 'pep' | 'identity';
+  status: 'passed' | 'failed' | 'pending-review' | 'in-progress';
   timestamp: Date;
   details: string;
+  riskScore: number; // 0-100 scale
+  flags: Array<{
+    type: string;
+    severity: 'low' | 'medium' | 'high';
+    description: string;
+  }>;
 }
 
 // Agent Message Types
@@ -190,4 +198,16 @@ export interface BankingChatThread {
   startedAt: Date;
   completedAt?: Date;
   outcome?: string;
+}
+
+// Agent visualization types
+export interface Agent {
+  id: string;
+  name: string;
+  role: string;
+  type: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'compliance';
+  position: { x: number; y: number };
+  status: 'idle' | 'working' | 'success' | 'error';
+  currentTask?: string;
+  color: string;
 }

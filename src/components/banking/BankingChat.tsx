@@ -1,23 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useBankingContext } from '../../context/BankingContext';
-import { Send, Bot, User, Upload, CheckCircle2, XCircle, AlertTriangle, Timer, FileX } from 'lucide-react';
+import { Send, Bot, User, Upload, CheckCircle2, XCircle, AlertTriangle, Timer, FileX, FileText, Camera } from 'lucide-react';
 import { BankingMode, Document, DocumentAttachment } from '../../types/banking';
 
 interface BankingChatProps {
   mode: BankingMode;
   standalone?: boolean;
+  onRequestDocumentVerification?: (documentType: string) => void;
 }
 
 const BankingChat: React.FC<BankingChatProps> = ({ 
   mode,
-  standalone = true 
+  standalone = true,
+  onRequestDocumentVerification
 }) => {
   const { 
     chatThreads, 
     addMessageToChatThread, 
     addDocument, 
     documents, 
-    addAuditEvent 
+    addAuditEvent,
+    setActiveTab
   } = useBankingContext();
   
   const [input, setInput] = useState('');
@@ -77,10 +80,30 @@ const BankingChat: React.FC<BankingChatProps> = ({
     // Log to audit trail
     addAuditEvent('Chat Message', `User sent message in ${mode} workflow: ${input.substring(0, 50)}${input.length > 50 ? '...' : ''}`);
     
-    // Simulate typing delay
-    setTimeout(() => {
-      setIsTyping(false);
-    }, 1500);
+    // If message contains words related to documents, suggest document verification tab
+    if (input.toLowerCase().includes('document') || 
+        input.toLowerCase().includes('upload') || 
+        input.toLowerCase().includes('id') || 
+        input.toLowerCase().includes('license') || 
+        input.toLowerCase().includes('passport') ||
+        input.toLowerCase().includes('verify')) {
+      
+      setTimeout(() => {
+        addMessageToChatThread(mode, {
+          sender: 'agent',
+          content: `I'll need to verify your identity to proceed with your ${mode.replace('-', ' ')} application. Please click on the "Document Verification" tab to securely upload your identification document.`,
+          agentType: 'document'
+        });
+        
+        setIsTyping(false);
+      }, 1500);
+    } else {
+      // Regular message flow
+      // Simulate typing delay
+      setTimeout(() => {
+        setIsTyping(false);
+      }, 1500);
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +128,12 @@ const BankingChat: React.FC<BankingChatProps> = ({
         break;
       default:
         documentType = 'id';
+    }
+    
+    // If we have an onRequestDocumentVerification handler, use it instead
+    if (onRequestDocumentVerification) {
+      onRequestDocumentVerification(documentType);
+      return;
     }
     
     // Create attachment for the message
@@ -210,9 +239,34 @@ const BankingChat: React.FC<BankingChatProps> = ({
   };
 
   const triggerFileUpload = () => {
+    // If we have an onRequestDocumentVerification handler, use it instead of file input
+    if (onRequestDocumentVerification) {
+      let documentType: Document['type'] = 'id';
+      
+      switch (mode) {
+        case 'account-opening':
+          documentType = 'id';
+          break;
+        case 'credit-card':
+          documentType = 'pay-stub';
+          break;
+        case 'loan':
+          documentType = 'tax-return';
+          break;
+      }
+      
+      onRequestDocumentVerification(documentType);
+      return;
+    }
+    
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+  };
+  
+  const openDocumentVerification = () => {
+    // Navigate to document verification tab
+    setActiveTab('document-verification');
   };
 
   return (
@@ -261,6 +315,19 @@ const BankingChat: React.FC<BankingChatProps> = ({
                 }`}
               >
                 <p className="text-sm">{message.content}</p>
+                
+                {/* If message contains document verification prompt, add action button */}
+                {message.sender === 'agent' && message.content.includes('Document Verification') && (
+                  <div className="mt-2 pt-2 border-t border-gray-200 flex justify-end">
+                    <button 
+                      className="px-2 py-1 bg-indigo-50 text-indigo-600 text-xs rounded flex items-center"
+                      onClick={() => onRequestDocumentVerification && onRequestDocumentVerification('id')}
+                    >
+                      <FileText className="h-3 w-3 mr-1" />
+                      Verify Documents
+                    </button>
+                  </div>
+                )}
                 
                 {/* Document attachments */}
                 {message.attachments && message.attachments.length > 0 && (
@@ -353,6 +420,15 @@ const BankingChat: React.FC<BankingChatProps> = ({
           >
             <Upload className="h-5 w-5" />
           </button>
+          
+          <button
+            onClick={() => onRequestDocumentVerification && onRequestDocumentVerification('id')}
+            className="p-2 rounded-full text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            title="Take photo"
+          >
+            <Camera className="h-5 w-5" />
+          </button>
+          
           <input
             type="text"
             className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"

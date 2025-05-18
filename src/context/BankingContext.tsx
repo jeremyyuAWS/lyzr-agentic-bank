@@ -8,7 +8,8 @@ import {
   Loan,
   BankingMessage,
   BankingChatThread,
-  KycResult
+  KycResult,
+  ComplianceCheck
 } from '../types/banking';
 import { 
   generateMockCustomer, 
@@ -16,7 +17,8 @@ import {
   generateMockCreditCard,
   generateMockLoan,
   generateMockDocumentVerification,
-  generateMockKycResult
+  generateMockKycResult,
+  generateMockComplianceCheck
 } from '../data/mockBankingData';
 
 interface BankingContextType {
@@ -50,6 +52,10 @@ interface BankingContextType {
   kycResult: KycResult | null;
   setKycResult: (result: KycResult | null) => void;
   
+  // Compliance checks
+  complianceChecks: ComplianceCheck[];
+  addComplianceCheck: (check: ComplianceCheck) => void;
+  
   // Chat threads
   chatThreads: Record<BankingMode, BankingChatThread>;
   addMessageToChatThread: (mode: BankingMode, message: Omit<BankingMessage, 'id' | 'timestamp'>) => void;
@@ -82,6 +88,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [creditCard, setCreditCard] = useState<CreditCard | null>(null);
   const [loan, setLoan] = useState<Loan | null>(null);
   const [kycResult, setKycResult] = useState<KycResult | null>(null);
+  const [complianceChecks, setComplianceChecks] = useState<ComplianceCheck[]>([]);
   const [auditTrail, setAuditTrail] = useState<{timestamp: Date, event: string, details: string}[]>([]);
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
@@ -129,9 +136,9 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     
     // Log user-agent interactions to audit trail
     if (message.sender === 'user') {
-      addAuditEvent('User Message', `User sent message in ${mode} workflow: ${message.content.substring(0, 50)}...`);
+      addAuditEvent('User Message', `User sent message in ${mode} workflow: ${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}`);
     } else {
-      addAuditEvent('Agent Response', `Agent responded in ${mode} workflow: ${message.content.substring(0, 50)}...`);
+      addAuditEvent('Agent Response', `Agent responded in ${mode} workflow: ${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}`);
     }
     
     // If in demo mode, simulate agent responses for user messages
@@ -231,6 +238,10 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
           
           // Add to audit trail
           addAuditEvent('KYC Check', `KYC verification ${mockKycResult.status} with risk score ${mockKycResult.riskScore}`);
+          
+          // Also add a compliance check
+          const mockComplianceCheck = generateMockComplianceCheck(customer.id, 'kyc');
+          addComplianceCheck(mockComplianceCheck);
         }
       }, 2000);
     }
@@ -253,6 +264,17 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     });
     
     return updatedDocument;
+  }, []);
+  
+  // Add a compliance check
+  const addComplianceCheck = useCallback((check: ComplianceCheck) => {
+    setComplianceChecks(prev => [check, ...prev]);
+    
+    // Add to audit trail
+    addAuditEvent(
+      'Compliance Check', 
+      `${check.checkType.toUpperCase()} check ${check.status} with risk score ${check.riskScore.toFixed(0)}`
+    );
   }, []);
   
   // Add an audit event
@@ -311,6 +333,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoan(null);
     setDocuments([]);
     setKycResult(null);
+    setComplianceChecks([]);
     
     // Reset all chat threads
     setChatThreads({
@@ -374,6 +397,8 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
         setLoan,
         kycResult,
         setKycResult,
+        complianceChecks,
+        addComplianceCheck,
         chatThreads,
         addMessageToChatThread,
         auditTrail,

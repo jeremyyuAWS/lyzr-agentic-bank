@@ -7,7 +7,8 @@ import {
   KycResult,
   KycFlag,
   Document,
-  PaymentSchedule
+  PaymentSchedule,
+  ComplianceCheck
 } from '../types/banking';
 
 // Generate a random string of specified length
@@ -341,6 +342,114 @@ export const generateMockKycResult = (customerId: string): KycResult => {
     notes: flags.length > 0 
       ? 'Further review required due to identified risk factors'
       : 'Automated verification completed successfully'
+  };
+};
+
+// Generate mock compliance check
+export const generateMockComplianceCheck = (
+  customerId: string,
+  checkType: ComplianceCheck['checkType']
+): ComplianceCheck => {
+  // Most checks pass (85%)
+  const passRate = checkType === 'sanctions' || checkType === 'pep' ? 0.9 : 0.85;
+  const passed = Math.random() < passRate;
+  
+  // Risk score based on whether the check passed
+  const riskScore = passed ? 
+    Math.floor(Math.random() * 30) : // Low risk (0-29)
+    Math.floor(Math.random() * 70) + 30; // Medium-high risk (30-99)
+  
+  // Status based on risk score
+  let status: ComplianceCheck['status'];
+  if (passed) {
+    status = 'passed';
+  } else if (riskScore >= 70) {
+    status = 'failed';
+  } else {
+    status = 'pending-review';
+  }
+  
+  // Generate flags based on risk and status
+  const flags: ComplianceCheck['flags'] = [];
+  
+  if (riskScore >= 30) { // Medium or high risk
+    // Create 1-3 flags for higher risk scores
+    const flagCount = riskScore >= 70 ? 2 + Math.floor(Math.random() * 2) : 1 + Math.floor(Math.random() * 2);
+    
+    const possibleTypes = [
+      'identity',
+      'address',
+      'document',
+      'watchlist',
+      'transaction',
+      'behavior',
+      checkType // Always include the check type as a potential flag
+    ];
+    
+    // Shuffle possible types to randomize selection
+    const shuffledTypes = [...possibleTypes].sort(() => Math.random() - 0.5);
+    
+    for (let i = 0; i < Math.min(flagCount, shuffledTypes.length); i++) {
+      const flagType = shuffledTypes[i];
+      const severity = riskScore >= 70 ? 'high' :
+                      riskScore >= 50 ? 'medium' : 'low';
+                      
+      let description = '';
+      switch (flagType) {
+        case 'identity':
+          description = 'Identity information inconsistency detected';
+          break;
+        case 'address':
+          description = 'Multiple address changes in short time period';
+          break;
+        case 'document':
+          description = 'Document validation failed quality checks';
+          break;
+        case 'watchlist':
+          description = 'Potential name match with watchlist';
+          break;
+        case 'transaction':
+          description = 'Unusual transaction pattern identified';
+          break;
+        case 'behavior':
+          description = 'Suspicious login or application behavior';
+          break;
+        case 'kyc':
+          description = 'KYC verification results require additional review';
+          break;
+        case 'aml':
+          description = 'Potential AML risk patterns detected';
+          break;
+        case 'fraud':
+          description = 'Possible fraudulent activity indicators';
+          break;
+        case 'sanctions':
+          description = 'Partial match with sanctioned entity';
+          break;
+        case 'pep':
+          description = 'Possible politically exposed person connection';
+          break;
+        default:
+          description = 'Compliance check flagged for review';
+      }
+      
+      flags.push({
+        type: flagType,
+        severity,
+        description
+      });
+    }
+  }
+  
+  return {
+    id: `compliance-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    customerId,
+    checkType,
+    status,
+    timestamp: new Date(),
+    riskScore,
+    details: `${checkType.toUpperCase()} compliance check ${status}`,
+    flags
   };
 };
 
