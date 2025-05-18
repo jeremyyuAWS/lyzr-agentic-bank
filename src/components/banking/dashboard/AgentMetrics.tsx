@@ -1,14 +1,6 @@
 import React from 'react';
 import { useBankingContext } from '../../../context/BankingContext';
-import { 
-  CircleCheck, 
-  CirclePause, 
-  BrainCog,
-  Cpu,
-  Share,
-  FolderCheck,
-  Timer
-} from 'lucide-react';
+import { CheckCircle as CircleCheck, PauseCircle as CirclePause, BrainCog, Cpu, Share, FolderCheck, Timer } from 'lucide-react';
 
 // Generates mock metrics for agent performance
 const generateAgentMetrics = () => {
