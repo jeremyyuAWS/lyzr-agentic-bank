@@ -591,8 +591,7 @@ const EnhancedAgentVisualization: React.FC = () => {
           setTimeout(() => {
             setAgents(prev => prev.map(agent => ({ 
               ...agent, 
-              status: 'idle', 
-              currentTask: undefined 
+              status: 'idle' 
             })));
             setIsAnimating(false);
           }, 1500);
