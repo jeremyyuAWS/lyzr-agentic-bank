@@ -33,7 +33,7 @@ const RadialGauge: React.FC<{
     if (!svgRef.current) return;
     
     // Clear SVG
-    d3.select(svgRef.current).selectAll('*').remove();
+    d3.select(svgRef.current).selectAll("*").remove();
     
     const svg = d3.select(svgRef.current);
     
@@ -66,7 +66,7 @@ const RadialGauge: React.FC<{
       .startAngle(startAngle)
       .endAngle(endAngle);
     
-    // Create background track
+    // Draw the inner circle (to create the donut hole)
     svg.append('path')
       .attr('d', arc())
       .attr('transform', `translate(${centerX}, ${centerY})`)
@@ -159,9 +159,9 @@ const BaselCompliance: React.FC = () => {
   // Format large number values
   const formatValue = (value: number) => {
     if (value >= 1_000_000_000) {
-      return `$${(value / 1_000_000_000).toFixed(2)}B`;
+      return `$${(value / 1_000_000_000).toFixed(1)}B`;
     } else if (value >= 1_000_000) {
-      return `$${(value / 1_000_000).toFixed(2)}M`;
+      return `$${(value / 1_000_000).toFixed(1)}M`;
     } else {
       return value.toLocaleString();
     }
@@ -206,10 +206,7 @@ const BaselCompliance: React.FC = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <ShieldCheck className="h-6 w-6 text-indigo-600 mr-2" />
-            <div>
-              <h2 className="text-lg font-medium text-indigo-900">Basel III Compliance Dashboard</h2>
-              <p className="text-sm text-indigo-700">Monitor and maintain compliance with Basel III regulatory requirements</p>
-            </div>
+            <h2 className="text-lg font-medium text-indigo-900">Basel III Compliance Dashboard</h2>
           </div>
           
           <div className="flex space-x-2">
@@ -542,7 +539,7 @@ const BaselCompliance: React.FC = () => {
           <h4 className="font-medium text-blue-800 text-sm">Basel III Compliance Reminder</h4>
           <p className="text-xs text-blue-700 mt-1">
             Regulatory updates may change capital and liquidity requirements. Stay updated with the latest Basel Committee guidance.
-            <a href="#" className="ml-1 text-blue-600 hover:text-blue-800 flex items-center inline-block">
+            <a href="#" className="ml-1 text-blue-600 hover:underline flex items-center inline-block">
               See regulatory calendar <ArrowRight className="h-3 w-3 ml-1" />
             </a>
           </p>

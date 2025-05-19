@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useBankingContext } from '../../../context/BankingContext';
 import { 
   Landmark, 
@@ -6,7 +6,6 @@ import {
   Filter, 
   Download, 
   RefreshCw, 
-  Clock, 
   CheckCircle, 
   XCircle, 
   AlertTriangle,
@@ -24,13 +23,13 @@ const BankNetworkGraph: React.FC<{
   width: number,
   height: number
 }> = ({ transfers, width, height }) => {
-  const svgRef = React.useRef<SVGSVGElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   
   useEffect(() => {
     if (!svgRef.current || !transfers || transfers.length === 0) return;
     
     // Clear SVG
-    d3.select(svgRef.current).selectAll('*').remove();
+    d3.select(svgRef.current).selectAll("*").remove();
     
     // Extract all unique banks
     const banks = Array.from(new Set([
@@ -292,7 +291,7 @@ const InterBankTransfers: React.FC = () => {
       case 'processing':
         return (
           <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 flex items-center">
-            <Clock className="h-3 w-3 mr-1" />
+            <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
             Processing
           </span>
         );
@@ -450,7 +449,7 @@ const InterBankTransfers: React.FC = () => {
                 }`}
                 onClick={() => setStatusFilter('processing')}
               >
-                <Clock className="inline-block h-3 w-3 mr-1" />
+                <RefreshCw className="inline-block h-3 w-3 mr-1" />
                 Processing
               </button>
               

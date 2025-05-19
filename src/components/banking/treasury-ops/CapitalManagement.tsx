@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useBankingContext } from '../../../context/BankingContext';
+import * as d3 from 'd3';
 import { Landmark as Landmark2, PieChart, RefreshCw, Download, TrendingUp, BarChart, ArrowRight, BarChart2 } from 'lucide-react';
 import { generateCapitalAllocation } from '../../../data/mockTreasuryData';
-import * as d3 from 'd3';
 
-// D3 component for capital allocation sunburst chart
+// D3 component for capital allocation chart
 const CapitalAllocationChart: React.FC<{
   data: {
     businessUnit: string;
@@ -21,7 +21,7 @@ const CapitalAllocationChart: React.FC<{
     if (!svgRef.current || data.length === 0) return;
     
     // Clear SVG
-    d3.select(svgRef.current).selectAll('*').remove();
+    d3.select(svgRef.current).selectAll("*").remove();
     
     // Create SVG
     const svg = d3.select(svgRef.current)
@@ -83,11 +83,11 @@ const CapitalAllocationChart: React.FC<{
       .enter()
       .append('rect')
       .attr('class', 'bar')
-      .attr('x', d => xScale(d.businessUnit) || 0)
-      .attr('y', d => yScale(d.allocatedCapital))
+      .attr('x', (d: any) => xScale(d.businessUnit) || 0)
+      .attr('y', (d: any) => yScale(d.allocatedCapital))
       .attr('width', xScale.bandwidth())
-      .attr('height', d => innerHeight - yScale(d.allocatedCapital))
-      .attr('fill', d => colorScale(d.businessUnit))
+      .attr('height', (d: any) => innerHeight - yScale(d.allocatedCapital))
+      .attr('fill', (d: any) => colorScale(d.businessUnit))
       .attr('rx', 3)
       .attr('ry', 3);
     
@@ -97,8 +97,8 @@ const CapitalAllocationChart: React.FC<{
       .enter()
       .append('text')
       .attr('class', 'bar-text')
-      .attr('x', d => (xScale(d.businessUnit) || 0) + xScale.bandwidth() / 2)
-      .attr('y', d => yScale(d.allocatedCapital) - 5)
+      .attr('x', (d: any) => (xScale(d.businessUnit) || 0) + xScale.bandwidth() / 2)
+      .attr('y', (d: any) => yScale(d.allocatedCapital) - 5)
       .attr('text-anchor', 'middle')
       .text(d => `${(d.returnOnAllocatedCapital * 100).toFixed(1)}%`)
       .attr('fill', '#4B5563')
@@ -146,7 +146,7 @@ const ROACvsRWABubbleChart: React.FC<{
     if (!svgRef.current || data.length === 0) return;
     
     // Clear SVG
-    d3.select(svgRef.current).selectAll('*').remove();
+    d3.select(svgRef.current).selectAll("*").remove();
     
     // Create SVG
     const svg = d3.select(svgRef.current)
@@ -154,7 +154,7 @@ const ROACvsRWABubbleChart: React.FC<{
       .attr('height', height);
     
     // Define dimensions
-    const margin = { top: a20, right: 80, bottom: 50, left: 60 };
+    const margin = { top: 20, right: 80, bottom: 50, left: 60 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
     
