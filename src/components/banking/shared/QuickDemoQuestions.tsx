@@ -5,10 +5,11 @@ import { ConversationType } from '../conversations/AccountOpeningConversations';
 import { accountOpeningConversations } from '../conversations/AccountOpeningConversations';
 import { creditCardConversations } from '../conversations/CreditCardConversations';
 import { loanConversations } from '../conversations/LoanConversations';
+import { fraudDetectionConversations } from '../conversations/FraudDetectionConversations';
 import ConversationPlayer from './ConversationPlayer';
 
 interface QuickDemoQuestionsProps {
-  mode: 'account-opening' | 'credit-card' | 'loan';
+  mode: 'account-opening' | 'credit-card' | 'loan' | 'fraud-detection';
   collapsed?: boolean;
 }
 
@@ -32,6 +33,9 @@ const QuickDemoQuestions: React.FC<QuickDemoQuestionsProps> = ({
         break;
       case 'loan':
         setConversations(loanConversations);
+        break;
+      case 'fraud-detection':
+        setConversations(fraudDetectionConversations);
         break;
       default:
         setConversations([]);

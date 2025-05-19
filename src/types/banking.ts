@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type BankingMode = 'account-opening' | 'credit-card' | 'loan';
+export type BankingMode = 'account-opening' | 'credit-card' | 'loan' | 'fraud-detection';
 
 export interface Customer {
   id: string;
@@ -133,6 +133,28 @@ export interface PaymentSchedule {
   remainingPrincipal: number;
 }
 
+// Fraud Detection Types
+export interface FraudAlert {
+  id: string;
+  customerId: string;
+  alertType: 'transaction' | 'login' | 'device' | 'account-change' | 'identity';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  timestamp: Date;
+  status: 'new' | 'in-progress' | 'resolved' | 'dismissed';
+  title: string;
+  description: string;
+  affectedAccountId?: string;
+  affectedCardId?: string;
+  transactionAmount?: number;
+  location?: string;
+  deviceInfo?: string;
+  ipAddress?: string;
+  riskScore: number; // 0-100 scale
+  resolution?: string;
+  resolvedAt?: Date;
+  resolvedBy?: string;
+}
+
 // Audit and Compliance Types
 export interface AuditLog {
   id: string;
@@ -167,7 +189,7 @@ export interface BankingMessage {
   sender: 'user' | 'agent';
   content: string;
   timestamp: Date;
-  agentType?: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan';
+  agentType?: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'fraud' | 'security';
   attachments?: DocumentAttachment[];
   actions?: AgentAction[];
 }
@@ -187,7 +209,8 @@ export type AgentAction =
   | { type: 'calculate-risk'; factors: string[] }
   | { type: 'create-account'; accountType: string }
   | { type: 'issue-card'; cardType: string }
-  | { type: 'process-loan'; loanType: string; amount: number; term: number };
+  | { type: 'process-loan'; loanType: string; amount: number; term: number }
+  | { type: 'flag-fraud'; alertType: string; severity: string };
 
 export interface BankingChatThread {
   id: string;
@@ -205,7 +228,7 @@ export interface Agent {
   id: string;
   name: string;
   role: string;
-  type: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'compliance';
+  type: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'compliance' | 'fraud' | 'security';
   position: { x: number; y: number };
   status: 'idle' | 'working' | 'success' | 'error';
   currentTask?: string;

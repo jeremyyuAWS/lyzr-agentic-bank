@@ -9,7 +9,8 @@ import {
   BankingMessage,
   BankingChatThread,
   KycResult,
-  ComplianceCheck
+  ComplianceCheck,
+  FraudAlert
 } from '../types/banking';
 import { 
   generateMockCustomer, 
@@ -18,7 +19,8 @@ import {
   generateMockLoan,
   generateMockDocumentVerification,
   generateMockKycResult,
-  generateMockComplianceCheck
+  generateMockComplianceCheck,
+  generateMockFraudAlert
 } from '../data/mockBankingData';
 
 interface BankingContextType {
@@ -56,6 +58,11 @@ interface BankingContextType {
   complianceChecks: ComplianceCheck[];
   addComplianceCheck: (check: ComplianceCheck) => void;
   
+  // Fraud alerts
+  fraudAlerts: FraudAlert[];
+  addFraudAlert: (alert: FraudAlert) => void;
+  updateFraudAlert: (id: string, updates: Partial<FraudAlert>) => FraudAlert | null;
+  
   // Chat threads
   chatThreads: Record<BankingMode, BankingChatThread>;
   addMessageToChatThread: (mode: BankingMode, message: Omit<BankingMessage, 'id' | 'timestamp'>) => void;
@@ -89,6 +96,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [loan, setLoan] = useState<Loan | null>(null);
   const [kycResult, setKycResult] = useState<KycResult | null>(null);
   const [complianceChecks, setComplianceChecks] = useState<ComplianceCheck[]>([]);
+  const [fraudAlerts, setFraudAlerts] = useState<FraudAlert[]>([]);
   const [auditTrail, setAuditTrail] = useState<{timestamp: Date, event: string, details: string}[]>([]);
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
@@ -112,6 +120,13 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     'loan': {
       id: 'loan-thread',
       mode: 'loan',
+      messages: [],
+      status: 'active',
+      startedAt: new Date()
+    },
+    'fraud-detection': {
+      id: 'fraud-detection-thread',
+      mode: 'fraud-detection',
       messages: [],
       status: 'active',
       startedAt: new Date()
@@ -193,6 +208,22 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
             agentType = 'loan';
           }
           break;
+          
+        case 'fraud-detection':
+          if (userMessage.toLowerCase().includes('fraud') || userMessage.toLowerCase().includes('suspicious') || userMessage.toLowerCase().includes('alert')) {
+            responseContent = "I can help you with fraud concerns. Our AI-powered fraud detection system continuously monitors your accounts for suspicious activity. If you've received an alert, we should review the transactions in question right away. Can you tell me more about the alert you received?";
+            agentType = 'fraud';
+          } else if (userMessage.toLowerCase().includes('transaction') || userMessage.toLowerCase().includes('purchase')) {
+            responseContent = "I'll help you review any suspicious transactions. Our system analyzes each transaction against your typical spending patterns, looking for anomalies in location, amount, merchant type, and timing. Would you like me to check for any unusual transactions on your account now?";
+            agentType = 'fraud';
+          } else if (userMessage.toLowerCase().includes('password') || userMessage.toLowerCase().includes('secure') || userMessage.toLowerCase().includes('protect')) {
+            responseContent = "Account security is our top priority. To help protect your account, ensure you're using a strong unique password, enable two-factor authentication, regularly monitor your accounts for unauthorized activity, and be cautious of phishing attempts. Would you like me to help you enhance your account security?";
+            agentType = 'security';
+          } else {
+            responseContent = "I understand you're concerned about security. Our fraud detection system uses advanced AI to identify unusual patterns and protect your accounts. We look at factors like transaction location, amount, timing, and merchant category, comparing each activity against your typical behavior. How else can I help address your security concerns?";
+            agentType = 'fraud';
+          }
+          break;
       }
       
       addMessageToChatThread(mode, {
@@ -243,6 +274,18 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
           const mockComplianceCheck = generateMockComplianceCheck(customer.id, 'kyc');
           addComplianceCheck(mockComplianceCheck);
         }
+        
+        // Generate fraud alerts occasionally based on document verification
+        if (Math.random() < 0.3) {
+          const mockFraudAlert = generateMockFraudAlert(
+            customer?.id || 'unknown-customer', 
+            'identity',
+            (document.type === 'id' || document.type === 'passport') ? 'medium' : 'low'
+          );
+          addFraudAlert(mockFraudAlert);
+          
+          addAuditEvent('Fraud Alert', `Fraud alert generated: ${mockFraudAlert.title}`);
+        }
       }, 2000);
     }
   }, [customer, isDemoMode]);
@@ -275,6 +318,44 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
       'Compliance Check', 
       `${check.checkType.toUpperCase()} check ${check.status} with risk score ${check.riskScore.toFixed(0)}`
     );
+  }, []);
+  
+  // Add a fraud alert
+  const addFraudAlert = useCallback((alert: FraudAlert) => {
+    setFraudAlerts(prev => [alert, ...prev]);
+    
+    // Add to audit trail
+    addAuditEvent(
+      'Fraud Alert', 
+      `${alert.severity.toUpperCase()} ${alert.alertType} alert created: ${alert.title}`
+    );
+  }, []);
+  
+  // Update a fraud alert
+  const updateFraudAlert = useCallback((id: string, updates: Partial<FraudAlert>) => {
+    let updatedAlert: FraudAlert | null = null;
+    
+    setFraudAlerts(prev => {
+      const updatedAlerts = prev.map(alert => {
+        if (alert.id === id) {
+          updatedAlert = { ...alert, ...updates };
+          return updatedAlert;
+        }
+        return alert;
+      });
+      
+      return updatedAlerts;
+    });
+    
+    // Add to audit trail if status changed
+    if (updatedAlert && updates.status) {
+      addAuditEvent(
+        'Fraud Alert Updated', 
+        `Alert ID ${id} status changed to ${updates.status}`
+      );
+    }
+    
+    return updatedAlert;
   }, []);
   
   // Add an audit event
@@ -320,6 +401,11 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
         setLoan(null);
         // Keep customer data if it exists
         break;
+        
+      case 'fraud-detection':
+        // Reset fraud alerts
+        setFraudAlerts([]);
+        break;
     }
     
     addAuditEvent('Workflow Reset', `The ${mode} workflow was reset`);
@@ -334,6 +420,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     setDocuments([]);
     setKycResult(null);
     setComplianceChecks([]);
+    setFraudAlerts([]);
     
     // Reset all chat threads
     setChatThreads({
@@ -354,6 +441,13 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
       'loan': {
         id: 'loan-thread-new',
         mode: 'loan',
+        messages: [],
+        status: 'active',
+        startedAt: new Date()
+      },
+      'fraud-detection': {
+        id: 'fraud-detection-thread-new',
+        mode: 'fraud-detection',
         messages: [],
         status: 'active',
         startedAt: new Date()
@@ -399,6 +493,9 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
         setKycResult,
         complianceChecks,
         addComplianceCheck,
+        fraudAlerts,
+        addFraudAlert,
+        updateFraudAlert,
         chatThreads,
         addMessageToChatThread,
         auditTrail,

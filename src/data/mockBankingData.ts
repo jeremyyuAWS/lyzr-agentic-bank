@@ -8,7 +8,8 @@ import {
   KycFlag,
   Document,
   PaymentSchedule,
-  ComplianceCheck
+  ComplianceCheck,
+  FraudAlert
 } from '../types/banking';
 
 // Generate a random string of specified length
@@ -447,9 +448,142 @@ export const generateMockComplianceCheck = (
     checkType,
     status,
     timestamp: new Date(),
-    riskScore,
     details: `${checkType.toUpperCase()} compliance check ${status}`,
+    riskScore,
     flags
+  };
+};
+
+// Generate mock fraud alert
+export const generateMockFraudAlert = (
+  customerId: string,
+  alertType: FraudAlert['alertType'] = 'transaction',
+  severityOverride?: FraudAlert['severity']
+): FraudAlert => {
+  
+  // Define possible titles and descriptions based on alert type
+  const alertDetails: Record<FraudAlert['alertType'], {titles: string[], descriptions: string[]}> = {
+    'transaction': {
+      titles: [
+        'Unusual Transaction Detected',
+        'Suspicious Purchase Activity',
+        'Potential Card Misuse',
+        'High-Risk Transaction Flagged'
+      ],
+      descriptions: [
+        'Transaction in unusual location for this account',
+        'Multiple large transactions in short timeframe',
+        'Transaction at high-risk merchant category',
+        'Unusual spending pattern detected'
+      ]
+    },
+    'login': {
+      titles: [
+        'Suspicious Login Attempt',
+        'Account Access from Unknown Location',
+        'Multiple Failed Login Attempts',
+        'Login from New Device'
+      ],
+      descriptions: [
+        'Login attempt from unrecognized device and location',
+        'Multiple failed password attempts followed by successful login',
+        'Account accessed from suspicious IP address',
+        'Login at unusual time from unfamiliar location'
+      ]
+    },
+    'device': {
+      titles: [
+        'New Device Added to Account',
+        'Unusual Device Activity',
+        'Device Verification Failed',
+        'Suspicious Device Behavior'
+      ],
+      descriptions: [
+        'New device added to account without verification',
+        'Multiple devices accessing account simultaneously',
+        'Device fingerprint matches known fraudulent pattern',
+        'Unusual browser or device characteristics detected'
+      ]
+    },
+    'account-change': {
+      titles: [
+        'Suspicious Account Changes',
+        'Profile Information Updated',
+        'Contact Details Modified',
+        'Security Settings Changed'
+      ],
+      descriptions: [
+        'Multiple account settings changed in short timeframe',
+        'Email and phone number changed simultaneously',
+        'Password and security questions modified',
+        'Account recovery options updated suspiciously'
+      ]
+    },
+    'identity': {
+      titles: [
+        'Potential Identity Theft',
+        'Identity Verification Failed',
+        'Document Verification Issues',
+        'Identity Information Mismatch'
+      ],
+      descriptions: [
+        'Submitted ID doesn\'t match account information',
+        'Multiple identity verification failures',
+        'Potential synthetic identity detected',
+        'Document appears altered or manipulated'
+      ]
+    }
+  };
+  
+  // Select random title and description
+  const titles = alertDetails[alertType].titles;
+  const descriptions = alertDetails[alertType].descriptions;
+  
+  const title = titles[Math.floor(Math.random() * titles.length)];
+  const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+  
+  // Determine severity
+  const severity: FraudAlert['severity'] = severityOverride || 
+    (Math.random() < 0.2 ? 'critical' :
+     Math.random() < 0.5 ? 'high' :
+     Math.random() < 0.8 ? 'medium' :
+     'low');
+  
+  // Calculate risk score based on severity
+  const riskScore = 
+    severity === 'critical' ? 80 + Math.floor(Math.random() * 20) :
+    severity === 'high' ? 60 + Math.floor(Math.random() * 20) :
+    severity === 'medium' ? 40 + Math.floor(Math.random() * 20) :
+    Math.floor(Math.random() * 40);
+  
+  // Add type-specific details
+  const additionalDetails: Partial<FraudAlert> = {};
+  
+  if (alertType === 'transaction') {
+    additionalDetails.transactionAmount = Math.floor(Math.random() * 1000) + 50;
+    additionalDetails.location = ['New York, NY', 'Lagos, Nigeria', 'Moscow, Russia', 'Beijing, China', 'Miami, FL'][Math.floor(Math.random() * 5)];
+    additionalDetails.affectedAccountId = `acct-${generateRandomString(8)}`;
+    additionalDetails.affectedCardId = `card-${generateRandomString(8)}`;
+  } else if (alertType === 'login') {
+    additionalDetails.ipAddress = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+    additionalDetails.location = ['New York, NY', 'Lagos, Nigeria', 'Moscow, Russia', 'Beijing, China', 'Miami, FL'][Math.floor(Math.random() * 5)];
+    additionalDetails.deviceInfo = `${['Windows', 'Mac', 'iPhone', 'Android', 'Linux'][Math.floor(Math.random() * 5)]} device`;
+  } else if (alertType === 'device') {
+    additionalDetails.deviceInfo = `New ${['Windows', 'Mac', 'iPhone', 'Android', 'Linux'][Math.floor(Math.random() * 5)]} device`;
+    additionalDetails.ipAddress = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+  }
+  
+  return {
+    id: `alert-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    customerId,
+    alertType,
+    severity,
+    timestamp: new Date(),
+    status: 'new',
+    title,
+    description,
+    riskScore,
+    ...additionalDetails
   };
 };
 
