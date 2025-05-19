@@ -399,7 +399,7 @@ Would you like to start your application now?`,
   },
   {
     id: 'mortgage-process',
-    trigger: 'What's involved in getting a mortgage?',
+    trigger: "What's involved in getting a mortgage?",
     title: 'Mortgage Process',
     description: 'Explains the mortgage application and approval process',
     messages: [

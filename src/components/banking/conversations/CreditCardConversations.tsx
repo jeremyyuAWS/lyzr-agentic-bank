@@ -89,7 +89,7 @@ Would you like to check if you pre-qualify without affecting your credit score?`
       },
       {
         sender: 'user',
-        content: 'Yes, I'd like to check if I pre-qualify for the Cash Rewards Card.',
+        content: "Yes, I'd like to check if I pre-qualify for the Cash Rewards Card.",
         delay: 1800,
       },
       {
@@ -188,7 +188,7 @@ If you had paid your previous statement balance in full, you would have a grace 
       },
       {
         sender: 'user',
-        content: 'So if I pay off my balance in full each month, I won't pay interest?',
+        content: "So if I pay off my balance in full each month, I won't pay interest?",
         delay: 2000,
       },
       {
