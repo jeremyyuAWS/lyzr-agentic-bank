@@ -75,10 +75,6 @@ interface BankingContextType {
   resetWorkflow: (mode: BankingMode) => void;
   resetAll: () => void;
   
-  // Demo mode
-  isDemoMode: boolean;
-  setIsDemoMode: (isDemo: boolean) => void;
-  
   // Show welcome modal
   showWelcomeModal: boolean;
   setShowWelcomeModal: (show: boolean) => void;
@@ -98,7 +94,6 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [complianceChecks, setComplianceChecks] = useState<ComplianceCheck[]>([]);
   const [fraudAlerts, setFraudAlerts] = useState<FraudAlert[]>([]);
   const [auditTrail, setAuditTrail] = useState<{timestamp: Date, event: string, details: string}[]>([]);
-  const [isDemoMode, setIsDemoMode] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   
   // Initialize chat threads for each mode
@@ -135,7 +130,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
   
   // Add a message to a specific chat thread
   const addMessageToChatThread = useCallback((mode: BankingMode, message: Omit<BankingMessage, 'id' | 'timestamp'>) => {
-    const newMessage: BankingMessage = {
+    const newMessage = {
       ...message,
       id: `msg-${Date.now()}`,
       timestamp: new Date()
@@ -149,91 +144,62 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
     }));
     
-    // Log user-agent interactions to audit trail
+    // Log to audit trail
     if (message.sender === 'user') {
-      addAuditEvent('User Message', `User sent message in ${mode} workflow: ${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}`);
+      addAuditEvent('Chat Message', `User sent message in ${mode} workflow: ${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}`);
     } else {
       addAuditEvent('Agent Response', `Agent responded in ${mode} workflow: ${message.content.substring(0, 50)}${message.content.length > 50 ? '...' : ''}`);
     }
     
-    // If in demo mode, simulate agent responses for user messages
-    if (isDemoMode && message.sender === 'user') {
+    // Simulate user and agent messages in demo mode
+    const simulateAgentResponse = (eventType: string, details: string) => {
+      // Determine which agents should react based on the event
+      if (message.content.toLowerCase().includes('fraud') || 
+          message.content.toLowerCase().includes('suspicious') || 
+          message.content.toLowerCase().includes('alert')) {
+        setTimeout(() => {
+          addMessageToChatThread(mode, {
+            sender: 'agent',
+            content: "I can help you with fraud concerns. Our AI-powered fraud detection system continuously monitors your accounts for suspicious activity. If you've received an alert, we should review the transactions in question right away. Can you tell me more about the alert you received?",
+            agentType: 'fraud'
+          });
+        }, 1000);
+      } else if (message.content.toLowerCase().includes('transaction') || 
+                 message.content.toLowerCase().includes('purchase')) {
+        setTimeout(() => {
+          addMessageToChatThread(mode, {
+            sender: 'agent',
+            content: "I'll help you review any suspicious transactions. Our system analyzes each transaction against your typical spending patterns, looking for anomalies in location, amount, merchant type, and timing. Would you like me to check for any unusual transactions on your account now?",
+            agentType: 'fraud'
+          });
+        }, 1000);
+      } else if (message.content.toLowerCase().includes('password') || 
+                 message.content.toLowerCase().includes('secure') || 
+                 message.content.toLowerCase().includes('protect')) {
+        setTimeout(() => {
+          addMessageToChatThread(mode, {
+            sender: 'agent',
+            content: "Account security is our top priority. To help protect your account, ensure you're using a strong unique password, enable two-factor authentication, regularly monitor your accounts for unauthorized activity, and be cautious of phishing attempts. Would you like me to help you enhance your account security?",
+            agentType: 'security'
+          });
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          addMessageToChatThread(mode, {
+            sender: 'agent',
+            content: "I understand you're concerned about security. Our fraud detection system uses advanced AI to identify unusual patterns and protect your accounts. We look at factors like transaction location, amount, timing, and merchant category, comparing each activity against your typical behavior. How else can I help address your security concerns?",
+            agentType: 'fraud'
+          });
+        }, 1000);
+      }
+    };
+
+    // If message from user, simulate agent response
+    if (message.sender === 'user') {
       simulateAgentResponse(mode, message.content);
     }
-  }, [isDemoMode]);
-  
-  // Simulate agent responses in demo mode
-  const simulateAgentResponse = useCallback((mode: BankingMode, userMessage: string) => {
-    setTimeout(() => {
-      // These are placeholder responses - in a real implementation, we would use more sophisticated logic
-      let responseContent = '';
-      let agentType: BankingMessage['agentType'] = 'onboarding';
-      
-      switch (mode) {
-        case 'account-opening':
-          if (userMessage.toLowerCase().includes('account')) {
-            responseContent = "I'd be happy to help you open a new bank account. To get started, I'll need to collect some personal information and verify your identity. What type of account are you interested in opening? We offer checking and savings accounts.";
-            agentType = 'onboarding';
-          } else if (userMessage.toLowerCase().includes('document') || userMessage.toLowerCase().includes('id') || userMessage.toLowerCase().includes('license')) {
-            responseContent = "To verify your identity, we'll need a government-issued photo ID (such as a driver's license or passport) and a proof of address (like a recent utility bill). You can upload these documents securely using our system.";
-            agentType = 'document';
-          } else {
-            responseContent = "Thanks for providing that information. I'm processing your account application. Is there anything specific you'd like to know about our account offerings or the application process?";
-            agentType = 'account';
-          }
-          break;
-          
-        case 'credit-card':
-          if (userMessage.toLowerCase().includes('credit') || userMessage.toLowerCase().includes('card')) {
-            responseContent = "I can help you apply for a credit card. We offer several options based on your credit profile and needs. To provide you with the best recommendation, I'll need to gather some information about your income, employment, and existing debt.";
-            agentType = 'credit';
-          } else if (userMessage.toLowerCase().includes('limit') || userMessage.toLowerCase().includes('rate')) {
-            responseContent = "Credit limits and interest rates are determined based on your credit history, income, and existing debt obligations. Once we review your application, I can provide you with the specific terms for which you qualify.";
-            agentType = 'credit';
-          } else {
-            responseContent = "Thank you for that information. I'm processing your credit card application. We'll need to perform a soft credit check to determine your eligibility and terms. This won't affect your credit score.";
-            agentType = 'credit';
-          }
-          break;
-          
-        case 'loan':
-          if (userMessage.toLowerCase().includes('loan')) {
-            responseContent = "I can help you with a loan application. We offer personal loans, home loans, and auto loans. What type of loan are you interested in? I'll need to understand your loan purpose, desired amount, and term to get started.";
-            agentType = 'loan';
-          } else if (userMessage.toLowerCase().includes('rate') || userMessage.toLowerCase().includes('interest') || userMessage.toLowerCase().includes('payment')) {
-            responseContent = "Loan interest rates depend on several factors including your credit score, loan amount, term, and purpose. Once we have your complete application, we can provide you with the specific rate and monthly payment details.";
-            agentType = 'loan';
-          } else {
-            responseContent = "Thank you for providing that information about your loan request. I'll need to verify your income and run a credit check to determine your eligibility. Would you be able to provide some documentation to verify your income?";
-            agentType = 'loan';
-          }
-          break;
-          
-        case 'fraud-detection':
-          if (userMessage.toLowerCase().includes('fraud') || userMessage.toLowerCase().includes('suspicious') || userMessage.toLowerCase().includes('alert')) {
-            responseContent = "I can help you with fraud concerns. Our AI-powered fraud detection system continuously monitors your accounts for suspicious activity. If you've received an alert, we should review the transactions in question right away. Can you tell me more about the alert you received?";
-            agentType = 'fraud';
-          } else if (userMessage.toLowerCase().includes('transaction') || userMessage.toLowerCase().includes('purchase')) {
-            responseContent = "I'll help you review any suspicious transactions. Our system analyzes each transaction against your typical spending patterns, looking for anomalies in location, amount, merchant type, and timing. Would you like me to check for any unusual transactions on your account now?";
-            agentType = 'fraud';
-          } else if (userMessage.toLowerCase().includes('password') || userMessage.toLowerCase().includes('secure') || userMessage.toLowerCase().includes('protect')) {
-            responseContent = "Account security is our top priority. To help protect your account, ensure you're using a strong unique password, enable two-factor authentication, regularly monitor your accounts for unauthorized activity, and be cautious of phishing attempts. Would you like me to help you enhance your account security?";
-            agentType = 'security';
-          } else {
-            responseContent = "I understand you're concerned about security. Our fraud detection system uses advanced AI to identify unusual patterns and protect your accounts. We look at factors like transaction location, amount, timing, and merchant category, comparing each activity against your typical behavior. How else can I help address your security concerns?";
-            agentType = 'fraud';
-          }
-          break;
-      }
-      
-      addMessageToChatThread(mode, {
-        sender: 'agent',
-        content: responseContent,
-        agentType
-      });
-    }, 1000); // Simulate processing time
-  }, [addMessageToChatThread]);
-  
+  }, []);
+
   // Add a document
   const addDocument = useCallback((document: Omit<Document, 'id' | 'uploadedAt'>) => {
     const newDocument: Document = {
@@ -247,33 +213,31 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     // Add to audit trail
     addAuditEvent('Document Upload', `Document ${document.type} uploaded and pending verification`);
     
-    // In demo mode, simulate document verification after a delay
-    if (isDemoMode) {
-      setTimeout(() => {
-        const verificationResult = generateMockDocumentVerification(newDocument.type);
-        updateDocument(newDocument.id, {
-          status: verificationResult.status,
-          verifiedAt: new Date(),
-          metadata: verificationResult.metadata
-        });
+    // Simulate document verification after a delay
+    setTimeout(() => {
+      const verificationResult = generateMockDocumentVerification(document.type);
+      updateDocument(newDocument.id, {
+        status: verificationResult.status,
+        verifiedAt: new Date(),
+        metadata: verificationResult.metadata
+      });
+      
+      // Add to audit trail
+      addAuditEvent('Document Verification', `Document ${document.type} verification ${verificationResult.status}`);
+      
+      // If document is verified and it's an ID, generate KYC result
+      if (verificationResult.status === 'verified' && 
+          (document.type === 'id' || document.type === 'passport' || document.type === 'driver-license') && 
+          customer) {
+        const mockKycResult = generateMockKycResult(customer.id);
+        setKycResult(mockKycResult);
         
         // Add to audit trail
-        addAuditEvent('Document Verification', `Document ${document.type} verification ${verificationResult.status}`);
+        addAuditEvent('KYC Check', `KYC verification ${mockKycResult.status} with risk score ${mockKycResult.riskScore}`);
         
-        // If document is verified and it's an ID, generate KYC result
-        if (verificationResult.status === 'verified' && 
-            (document.type === 'id' || document.type === 'passport' || document.type === 'driver-license') && 
-            customer) {
-          const mockKycResult = generateMockKycResult(customer.id);
-          setKycResult(mockKycResult);
-          
-          // Add to audit trail
-          addAuditEvent('KYC Check', `KYC verification ${mockKycResult.status} with risk score ${mockKycResult.riskScore}`);
-          
-          // Also add a compliance check
-          const mockComplianceCheck = generateMockComplianceCheck(customer.id, 'kyc');
-          addComplianceCheck(mockComplianceCheck);
-        }
+        // Also add a compliance check
+        const mockComplianceCheck = generateMockComplianceCheck(customer.id, 'kyc');
+        addComplianceCheck(mockComplianceCheck);
         
         // Generate fraud alerts occasionally based on document verification
         if (Math.random() < 0.3) {
@@ -286,9 +250,9 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
           
           addAuditEvent('Fraud Alert', `Fraud alert generated: ${mockFraudAlert.title}`);
         }
-      }, 2000);
-    }
-  }, [customer, isDemoMode]);
+      }
+    }, 2000);
+  }, [customer]);
   
   // Update a document
   const updateDocument = useCallback((id: string, updates: Partial<Document>) => {
@@ -316,7 +280,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     // Add to audit trail
     addAuditEvent(
       'Compliance Check', 
-      `${check.checkType.toUpperCase()} check ${check.status} with risk score ${check.riskScore.toFixed(0)}`
+      `${check.checkType.toUpperCase()} compliance check ${check.status} with risk score ${check.riskScore.toFixed(0)}`
     );
   }, []);
   
@@ -502,8 +466,6 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
         addAuditEvent,
         resetWorkflow,
         resetAll,
-        isDemoMode,
-        setIsDemoMode,
         showWelcomeModal,
         setShowWelcomeModal
       }}

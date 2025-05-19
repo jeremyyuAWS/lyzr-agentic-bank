@@ -3,7 +3,7 @@ import { useBankingContext } from '../../context/BankingContext';
 import { CircleUser, BellRing, Menu, X, Shield, HelpCircle, AlertTriangle } from 'lucide-react';
 
 const BankingHeader: React.FC = () => {
-  const { mode, isDemoMode, setIsDemoMode, setActiveTab } = useBankingContext();
+  const { mode, setMode, isDemoMode, setIsDemoMode, setActiveTab } = useBankingContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   
   return (
@@ -70,18 +70,6 @@ const BankingHeader: React.FC = () => {
           </div>
           
           <div className="flex items-center">
-            {/* Demo Mode Toggle */}
-            <button
-              className={`mr-4 px-3 py-1 rounded-full text-xs font-medium ${
-                isDemoMode
-                  ? 'bg-green-100 text-green-800 border border-green-200'
-                  : 'bg-gray-100 text-gray-800 border border-gray-200'
-              }`}
-              onClick={() => setIsDemoMode(!isDemoMode)}
-            >
-              {isDemoMode ? 'Demo Mode: On' : 'Demo Mode: Off'}
-            </button>
-            
             {/* Help button */}
             <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none">
               <HelpCircle className="h-5 w-5" />
