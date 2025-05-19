@@ -76,7 +76,7 @@ Which loan type are you most interested in learning more about?`,
       },
       {
         sender: 'user',
-        content: 'I'm interested in a personal loan for debt consolidation. What documentation will I need?',
+        content: "I'm interested in a personal loan for debt consolidation. What documentation will I need?",
         delay: 2000,
       },
       {
@@ -110,7 +110,7 @@ For debt consolidation specifically, having the details of all accounts you want
       },
       {
         sender: 'user',
-        content: 'What's the typical timeline from application to funding for a personal loan?',
+        content: "What's the typical timeline from application to funding for a personal loan?",
         delay: 1800,
       },
       {
@@ -354,7 +354,7 @@ Would you like to proceed with a personal loan application for debt consolidatio
       },
       {
         sender: 'user',
-        content: 'Yes, that sounds like it would help. What's the application process like?',
+        content: "Yes, that sounds like it would help. What's the application process like?",
         delay: 1800,
       },
       {
@@ -405,7 +405,7 @@ Would you like to start your application now?`,
     messages: [
       {
         sender: 'user',
-        content: 'What's involved in getting a mortgage?',
+        content: "What's involved in getting a mortgage?",
       },
       {
         sender: 'agent',
@@ -515,7 +515,7 @@ Our mortgage team will guide you through exactly which documents are needed for 
       },
       {
         sender: 'user',
-        content: 'What's the difference between fixed-rate and adjustable-rate mortgages?',
+        content: "What's the difference between fixed-rate and adjustable-rate mortgages?",
         delay: 1800,
       },
       {
@@ -668,7 +668,7 @@ For mortgage loans, we also look at the front-end ratio (housing costs only divi
       },
       {
         sender: 'user',
-        content: 'If my credit score isn't great, are there other factors that can help me qualify?',
+        content: "If my credit score isn't great, are there other factors that can help me qualify?",
         delay: 1800,
       },
       {
