@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useBankingContext } from '../../../context/BankingContext';
-import { 
-  Landmark2, 
-  PieChart, 
-  RefreshCw, 
-  Download, 
-  TrendingUp, 
-  BarChart,
-  ArrowRight,
-  BarChart2
-} from 'lucide-react';
+import { Landmark as Landmark2, PieChart, RefreshCw, Download, TrendingUp, BarChart, ArrowRight, BarChart2 } from 'lucide-react';
 import { generateCapitalAllocation } from '../../../data/mockTreasuryData';
 import * as d3 from 'd3';
 
