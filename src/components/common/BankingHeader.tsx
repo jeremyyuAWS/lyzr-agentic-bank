@@ -1,10 +1,46 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useBankingContext } from '../../context/BankingContext';
-import { CircleUser, BellRing, Menu, X, Shield, HelpCircle, AlertTriangle, DollarSign, BarChart } from 'lucide-react';
+import { CircleUser, BellRing, Menu, X, Shield, HelpCircle, AlertTriangle, DollarSign, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const BankingHeader: React.FC = () => {
   const { mode, setMode, setActiveTab } = useBankingContext();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showTabControls, setShowTabControls] = useState(false);
+  
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Check if scrolling is needed
+  useEffect(() => {
+    const checkScrollWidth = () => {
+      if (tabsContainerRef.current) {
+        const { scrollWidth, clientWidth } = tabsContainerRef.current;
+        setShowTabControls(scrollWidth > clientWidth);
+      }
+    };
+    
+    // Check initially
+    checkScrollWidth();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkScrollWidth);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkScrollWidth);
+    };
+  }, []);
+  
+  const scrollLeft = () => {
+    if (tabsContainerRef.current) {
+      tabsContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+  
+  const scrollRight = () => {
+    if (tabsContainerRef.current) {
+      tabsContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
   
   return (
     <header className="bg-white border-b border-gray-200 fixed w-full z-10">
@@ -26,54 +62,80 @@ const BankingHeader: React.FC = () => {
               </div>
             </div>
             
-            {/* Desktop Navigation */}
-            <nav className="hidden md:ml-6 md:flex md:space-x-8">
-              <button 
-                onClick={() => setActiveTab('home')}
-                className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+            {/* Desktop Navigation with Tab Slider */}
+            <div className="hidden md:ml-6 md:flex md:items-center">
+              {showTabControls && (
+                <button 
+                  onClick={scrollLeft}
+                  className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none"
+                  aria-label="Scroll tabs left"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              )}
+              
+              <nav 
+                ref={tabsContainerRef}
+                className="flex space-x-8 overflow-x-auto scrollbar-hide"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                Dashboard
-              </button>
-              <button 
-                onClick={() => setActiveTab('account-opening')}
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Account Opening
-              </button>
-              <button 
-                onClick={() => setActiveTab('credit-card')}
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Credit Cards
-              </button>
-              <button 
-                onClick={() => setActiveTab('loan')}
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Loans
-              </button>
-              <button 
-                onClick={() => setActiveTab('fraud-detection')}
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                <AlertTriangle className="h-4 w-4 mr-1.5" />
-                Fraud Detection
-              </button>
-              <button 
-                onClick={() => setActiveTab('treasury-ops')}
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                <BarChart className="h-4 w-4 mr-1.5" />
-                Treasury Ops
-              </button>
-              <button 
-                onClick={() => setActiveTab('compliance')}
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                <Shield className="h-4 w-4 mr-1.5" />
-                Compliance
-              </button>
-            </nav>
+                <button 
+                  onClick={() => setActiveTab('home')}
+                  className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                >
+                  Dashboard
+                </button>
+                <button 
+                  onClick={() => setActiveTab('account-opening')}
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                >
+                  Account Opening
+                </button>
+                <button 
+                  onClick={() => setActiveTab('credit-card')}
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                >
+                  Credit Cards
+                </button>
+                <button 
+                  onClick={() => setActiveTab('loan')}
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                >
+                  Loans
+                </button>
+                <button 
+                  onClick={() => setActiveTab('fraud-detection')}
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                >
+                  <AlertTriangle className="h-4 w-4 mr-1.5" />
+                  Fraud Detection
+                </button>
+                <button 
+                  onClick={() => setActiveTab('treasury-ops')}
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                >
+                  <BarChart className="h-4 w-4 mr-1.5" />
+                  Treasury Ops
+                </button>
+                <button 
+                  onClick={() => setActiveTab('compliance')}
+                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                >
+                  <Shield className="h-4 w-4 mr-1.5" />
+                  Compliance
+                </button>
+              </nav>
+
+              {showTabControls && (
+                <button 
+                  onClick={scrollRight}
+                  className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none"
+                  aria-label="Scroll tabs right"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center">
