@@ -66,7 +66,7 @@ Which account type are you most interested in?`,
       },
       {
         sender: 'user',
-        content: 'I'm interested in the Premium Checking Account. What documents do I need to open one?',
+        content: "I'm interested in the Premium Checking Account. What documents do I need to open one?",
         delay: 2500,
       },
       {
@@ -83,12 +83,12 @@ Would you like to start the application process now?`,
       },
       {
         sender: 'user',
-        content: 'Yes, I'd like to apply for the Premium Checking Account.',
+        content: "Yes, I'd like to apply for the Premium Checking Account.",
         delay: 1800,
       },
       {
         sender: 'agent',
-        content: 'Great! I'll guide you through the account opening process. First, let's gather some basic information. What is your full legal name?',
+        content: "Great! I'll guide you through the account opening process. First, let's gather some basic information. What is your full legal name?",
         agentType: 'onboarding',
         delay: 1000,
       }
@@ -144,7 +144,7 @@ Your documents are processed in a secure environment and are never stored longer
       },
       {
         sender: 'user',
-        content: 'That makes sense. I can provide my driver's license for verification.',
+        content: "That makes sense. I can provide my driver's license for verification.",
         delay: 1800,
       },
       {
@@ -203,7 +203,7 @@ Which of these benefits is most important to you?`,
       },
       {
         sender: 'user',
-        content: 'I'm most interested in the higher interest rates. How do you offer such high rates compared to traditional banks?',
+        content: "I'm most interested in the higher interest rates. How do you offer such high rates compared to traditional banks?",
         delay: 2000,
       },
       {
@@ -392,7 +392,7 @@ Unlike traditional banks, we don't charge many common fees such as:
       },
       {
         sender: 'user',
-        content: 'That's great! What about the High-Yield Savings account?',
+        content: "That's great! What about the High-Yield Savings account?",
         delay: 1800,
       },
       {
