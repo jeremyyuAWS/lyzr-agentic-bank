@@ -19,7 +19,7 @@ const AccountOpeningWorkflow: React.FC = () => {
   };
   
   // Open document verification view with specified document type
-  const openDocumentVerification = (type: string) => {
+  const handleDocumentVerificationRequest = (type: string) => {
     setDocumentType(type);
     setActiveView('document');
   };
@@ -47,7 +47,7 @@ const AccountOpeningWorkflow: React.FC = () => {
                 ? 'bg-indigo-50 text-indigo-700 border border-indigo-100'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
-            onClick={() => openDocumentVerification('id')}
+            onClick={() => setActiveView('document')}
           >
             <FileText className="h-4 w-4 mr-1.5" />
             <span>Document Verification</span>
@@ -75,7 +75,10 @@ const AccountOpeningWorkflow: React.FC = () => {
       <div className="flex-1 overflow-hidden">
         {activeView === 'chat' ? (
           <div className="h-full p-4">
-            <BankingChat mode="account-opening" />
+            <BankingChat
+              mode="account-opening"
+              onRequestDocumentVerification={handleDocumentVerificationRequest}
+            />
           </div>
         ) : activeView === 'document' ? (
           <div className="h-full p-4">

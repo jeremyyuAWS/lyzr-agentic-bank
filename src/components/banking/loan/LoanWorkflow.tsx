@@ -3,9 +3,8 @@ import { useBankingContext } from '../../../context/BankingContext';
 import BankingChat from '../../banking/BankingChat';
 import LoanStatus from './LoanStatus';
 import DocumentVerificationView from '../document/DocumentVerificationView';
-import AIDecisionExplainer from '../shared/AIDecisionExplainer';
-import LoanPortfolioIntegration from './LoanPortfolioIntegration';
 import EnhancedAIExplanation from '../shared/EnhancedAIExplanation';
+import LoanPortfolioIntegration from './LoanPortfolioIntegration';
 import { Layers, CheckCircle, AlertCircle, FileText, Calculator, TrendingUp } from 'lucide-react';
 
 const LoanWorkflow: React.FC = () => {
@@ -191,7 +190,7 @@ const LoanWorkflow: React.FC = () => {
             />
             
             {/* Loan terms summary - would be more sophisticated in a real app */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
               <h4 className="text-lg font-medium text-gray-900 mb-4">Approved Loan Terms</h4>
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
