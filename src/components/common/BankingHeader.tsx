@@ -77,7 +77,7 @@ const BankingHeader: React.FC = () => {
               <nav 
                 ref={tabsContainerRef}
                 className="flex space-x-8 overflow-x-auto scrollbar-hide"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', maxWidth: 'calc(100vw - 400px)' }}
               >
                 <button 
                   onClick={() => setActiveTab('home')}
