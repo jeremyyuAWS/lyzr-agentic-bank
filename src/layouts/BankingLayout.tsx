@@ -8,6 +8,7 @@ import CreditCardWorkflow from '../components/banking/credit-card/CreditCardWork
 import LoanWorkflow from '../components/banking/loan/LoanWorkflow';
 import ComplianceDashboard from '../components/banking/compliance/ComplianceDashboard';
 import FraudDetectionWorkflow from '../components/banking/fraud-detection/FraudDetectionWorkflow';
+import TreasuryOpsWorkflow from '../components/banking/treasury-ops/TreasuryOpsWorkflow';
 
 const BankingLayout: React.FC = () => {
   const { activeTab } = useBankingContext();
@@ -25,6 +26,7 @@ const BankingLayout: React.FC = () => {
           {activeTab === 'loan' && <LoanWorkflow />}
           {activeTab === 'compliance' && <ComplianceDashboard />}
           {activeTab === 'fraud-detection' && <FraudDetectionWorkflow />}
+          {activeTab === 'treasury-ops' && <TreasuryOpsWorkflow />}
         </div>
       </main>
     </div>

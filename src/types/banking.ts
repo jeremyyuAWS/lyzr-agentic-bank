@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type BankingMode = 'account-opening' | 'credit-card' | 'loan' | 'fraud-detection';
+export type BankingMode = 'account-opening' | 'credit-card' | 'loan' | 'fraud-detection' | 'treasury-ops';
 
 export interface Customer {
   id: string;
@@ -155,6 +155,68 @@ export interface FraudAlert {
   resolvedBy?: string;
 }
 
+// Treasury Operations Types
+export interface TreasuryPosition {
+  id: string;
+  asset: string;
+  type: 'cash' | 'investment' | 'collateral' | 'reserve';
+  amount: number;
+  currency: string;
+  maturity?: Date;
+  yield?: number;
+  riskWeight: number;
+  location: string;
+  category: 'operational' | 'reserve' | 'investment' | 'regulatory';
+  liquidity: 'high' | 'medium' | 'low';
+  timestamp: Date;
+}
+
+export interface InterBankTransfer {
+  id: string;
+  fromBank: string;
+  toBank: string;
+  amount: number;
+  currency: string;
+  type: 'nostro' | 'vostro' | 'swift' | 'fedwire' | 'ach' | 'chaps' | 'sepa';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'returned';
+  settlementDate: Date;
+  valueDate: Date;
+  reference: string;
+  purpose: string;
+  fees?: number;
+  exchangeRate?: number;
+  priority: 'normal' | 'high' | 'urgent';
+  createdAt: Date;
+  completedAt?: Date;
+}
+
+export interface BaselMetric {
+  id: string;
+  category: 'capital' | 'liquidity' | 'leverage';
+  name: string;
+  value: number;
+  target: number;
+  minimum: number;
+  status: 'compliant' | 'warning' | 'non-compliant';
+  trend: 'improving' | 'stable' | 'declining';
+  date: Date;
+}
+
+export interface RegulatoryReport {
+  id: string;
+  name: string;
+  type: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual';
+  status: 'pending' | 'in-progress' | 'submitted' | 'accepted' | 'rejected';
+  dueDate: Date;
+  submissionDate?: Date;
+  authority: string;
+  description: string;
+  metrics: string[];
+  assignedTo?: string;
+  notes?: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+}
+
 // Audit and Compliance Types
 export interface AuditLog {
   id: string;
@@ -189,7 +251,7 @@ export interface BankingMessage {
   sender: 'user' | 'agent';
   content: string;
   timestamp: Date;
-  agentType?: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'fraud' | 'security';
+  agentType?: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'fraud' | 'security' | 'treasury';
   attachments?: DocumentAttachment[];
   actions?: AgentAction[];
 }
@@ -210,7 +272,9 @@ export type AgentAction =
   | { type: 'create-account'; accountType: string }
   | { type: 'issue-card'; cardType: string }
   | { type: 'process-loan'; loanType: string; amount: number; term: number }
-  | { type: 'flag-fraud'; alertType: string; severity: string };
+  | { type: 'flag-fraud'; alertType: string; severity: string }
+  | { type: 'transfer-funds'; amount: number; destination: string }
+  | { type: 'reserve-calculation'; reserveType: string };
 
 export interface BankingChatThread {
   id: string;
@@ -228,7 +292,7 @@ export interface Agent {
   id: string;
   name: string;
   role: string;
-  type: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'compliance' | 'fraud' | 'security';
+  type: 'onboarding' | 'document' | 'kyc-aml' | 'account' | 'credit' | 'loan' | 'compliance' | 'fraud' | 'security' | 'treasury';
   position: { x: number; y: number };
   status: 'idle' | 'working' | 'success' | 'error';
   currentTask?: string;

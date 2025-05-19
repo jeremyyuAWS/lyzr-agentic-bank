@@ -10,7 +10,11 @@ import {
   BankingChatThread,
   KycResult,
   ComplianceCheck,
-  FraudAlert
+  FraudAlert,
+  TreasuryPosition,
+  InterBankTransfer,
+  BaselMetric,
+  RegulatoryReport
 } from '../types/banking';
 import { 
   generateMockCustomer, 
@@ -22,6 +26,12 @@ import {
   generateMockComplianceCheck,
   generateMockFraudAlert
 } from '../data/mockBankingData';
+import {
+  generateTreasuryPositions,
+  generateInterBankTransfers,
+  generateBaselMetrics,
+  generateRegulatoryReports
+} from '../data/mockTreasuryData';
 
 interface BankingContextType {
   mode: BankingMode;
@@ -63,6 +73,13 @@ interface BankingContextType {
   addFraudAlert: (alert: FraudAlert) => void;
   updateFraudAlert: (id: string, updates: Partial<FraudAlert>) => FraudAlert | null;
   
+  // Treasury operations data
+  treasuryPositions: TreasuryPosition[];
+  interBankTransfers: InterBankTransfer[];
+  baselMetrics: BaselMetric[];
+  regulatoryReports: RegulatoryReport[];
+  updateTreasuryData: () => void;
+  
   // Chat threads
   chatThreads: Record<BankingMode, BankingChatThread>;
   addMessageToChatThread: (mode: BankingMode, message: Omit<BankingMessage, 'id' | 'timestamp'>) => void;
@@ -96,6 +113,12 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [auditTrail, setAuditTrail] = useState<{timestamp: Date, event: string, details: string}[]>([]);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   
+  // Treasury operations data
+  const [treasuryPositions, setTreasuryPositions] = useState<TreasuryPosition[]>([]);
+  const [interBankTransfers, setInterBankTransfers] = useState<InterBankTransfer[]>([]);
+  const [baselMetrics, setBaselMetrics] = useState<BaselMetric[]>([]);
+  const [regulatoryReports, setRegulatoryReports] = useState<RegulatoryReport[]>([]);
+  
   // Initialize chat threads for each mode
   const [chatThreads, setChatThreads] = useState<Record<BankingMode, BankingChatThread>>({
     'account-opening': {
@@ -125,8 +148,31 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
       messages: [],
       status: 'active',
       startedAt: new Date()
+    },
+    'treasury-ops': {
+      id: 'treasury-ops-thread',
+      mode: 'treasury-ops',
+      messages: [],
+      status: 'active',
+      startedAt: new Date()
     }
   });
+  
+  // Initialize treasury operations data
+  useEffect(() => {
+    updateTreasuryData();
+  }, []);
+  
+  // Update treasury data
+  const updateTreasuryData = useCallback(() => {
+    setTreasuryPositions(generateTreasuryPositions(20));
+    setInterBankTransfers(generateInterBankTransfers(15));
+    setBaselMetrics(generateBaselMetrics());
+    setRegulatoryReports(generateRegulatoryReports(10));
+    
+    // Add audit event
+    addAuditEvent('Treasury Data', 'Treasury operations data refreshed');
+  }, []);
   
   // Add a message to a specific chat thread
   const addMessageToChatThread = useCallback((mode: BankingMode, message: Omit<BankingMessage, 'id' | 'timestamp'>) => {
@@ -153,7 +199,60 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     
     // Simulate user and agent messages in demo mode
     const simulateAgentResponse = (eventType: string, details: string) => {
-      // Determine which agents should react based on the event
+      // Treasury operations simulation
+      if (mode === 'treasury-ops') {
+        setTimeout(() => {
+          if (message.content.toLowerCase().includes('liquidity') || 
+              message.content.toLowerCase().includes('cash') || 
+              message.content.toLowerCase().includes('position')) {
+            addMessageToChatThread(mode, {
+              sender: 'agent',
+              content: "I can help with liquidity management and position monitoring. Our current liquidity position is strong with coverage ratios exceeding regulatory requirements. Would you like to see a detailed breakdown of our high-quality liquid assets or cash flow projections?",
+              agentType: 'treasury'
+            });
+          } else if (message.content.toLowerCase().includes('basel') || 
+                     message.content.toLowerCase().includes('regulatory') || 
+                     message.content.toLowerCase().includes('compliance')) {
+            addMessageToChatThread(mode, {
+              sender: 'agent',
+              content: "Our Basel III compliance is currently within acceptable parameters. All key metrics including CET1 Ratio, LCR, and NSFR are above regulatory minimums, though we're monitoring two metrics that are showing a downward trend. Would you like to review the detailed compliance dashboard?",
+              agentType: 'treasury'
+            });
+          } else if (message.content.toLowerCase().includes('transfer') || 
+                     message.content.toLowerCase().includes('interbank') || 
+                     message.content.toLowerCase().includes('swift')) {
+            addMessageToChatThread(mode, {
+              sender: 'agent',
+              content: "I can assist with interbank transfers and correspondent banking activities. We currently have 8 pending transfers and completed 15 in the past 72 hours. Would you like to initiate a new transfer or review the status of existing transfers?",
+              agentType: 'treasury'
+            });
+          } else if (message.content.toLowerCase().includes('report') || 
+                     message.content.toLowerCase().includes('filing')) {
+            addMessageToChatThread(mode, {
+              sender: 'agent',
+              content: "We have 3 regulatory reports due in the next 15 days, including the FR 2052a Liquidity Monitoring Report. Two reports are currently in preparation phase. Would you like to see the complete regulatory reporting calendar or focus on upcoming deadlines?",
+              agentType: 'treasury'
+            });
+          } else if (message.content.toLowerCase().includes('capital') || 
+                     message.content.toLowerCase().includes('allocation') || 
+                     message.content.toLowerCase().includes('rwa')) {
+            addMessageToChatThread(mode, {
+              sender: 'agent',
+              content: "I can provide information on our capital allocation and management. Currently, our CET1 ratio is strong at 13.5% with risk-weighted assets of approximately $190 billion. Our capital allocation strategy focuses on optimizing returns while maintaining regulatory compliance. Would you like to see the full capital breakdown by business unit?",
+              agentType: 'treasury'
+            });
+          } else {
+            addMessageToChatThread(mode, {
+              sender: 'agent',
+              content: "I'm your Treasury Operations Assistant, ready to help with liquidity management, regulatory compliance, interbank transfers, capital allocation, and reporting requirements. I can provide real-time insights on our financial positions and help optimize treasury operations. What specific area would you like to explore today?",
+              agentType: 'treasury'
+            });
+          }
+        }, 1000);
+        return;
+      }
+      
+      // Determine which agents should react based on event type
       if (message.content.toLowerCase().includes('fraud') || 
           message.content.toLowerCase().includes('suspicious') || 
           message.content.toLowerCase().includes('alert')) {
@@ -370,10 +469,15 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
         // Reset fraud alerts
         setFraudAlerts([]);
         break;
+        
+      case 'treasury-ops':
+        // Reset treasury data
+        updateTreasuryData();
+        break;
     }
     
     addAuditEvent('Workflow Reset', `The ${mode} workflow was reset`);
-  }, [addAuditEvent]);
+  }, [addAuditEvent, updateTreasuryData]);
   
   // Reset everything
   const resetAll = useCallback(() => {
@@ -385,6 +489,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
     setKycResult(null);
     setComplianceChecks([]);
     setFraudAlerts([]);
+    updateTreasuryData();
     
     // Reset all chat threads
     setChatThreads({
@@ -415,6 +520,13 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
         messages: [],
         status: 'active',
         startedAt: new Date()
+      },
+      'treasury-ops': {
+        id: 'treasury-ops-thread-new',
+        mode: 'treasury-ops',
+        messages: [],
+        status: 'active',
+        startedAt: new Date()
       }
     });
     
@@ -424,7 +536,7 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
       event: 'Session Reset',
       details: 'All workflows and data have been reset'
     }]);
-  }, []);
+  }, [updateTreasuryData]);
   
   // Initialize with an empty audit log entry
   useEffect(() => {
@@ -460,6 +572,11 @@ export const BankingProvider: React.FC<{ children: ReactNode }> = ({ children })
         fraudAlerts,
         addFraudAlert,
         updateFraudAlert,
+        treasuryPositions,
+        interBankTransfers,
+        baselMetrics,
+        regulatoryReports,
+        updateTreasuryData,
         chatThreads,
         addMessageToChatThread,
         auditTrail,

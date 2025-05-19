@@ -1,9 +1,9 @@
 import React from 'react';
 import { useBankingContext } from '../../context/BankingContext';
-import { CircleUser, BellRing, Menu, X, Shield, HelpCircle, AlertTriangle } from 'lucide-react';
+import { CircleUser, BellRing, Menu, X, Shield, HelpCircle, AlertTriangle, DollarSign, BarChart } from 'lucide-react';
 
 const BankingHeader: React.FC = () => {
-  const { mode, setMode, isDemoMode, setIsDemoMode, setActiveTab } = useBankingContext();
+  const { mode, setMode, setActiveTab } = useBankingContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   
   return (
@@ -58,6 +58,13 @@ const BankingHeader: React.FC = () => {
               >
                 <AlertTriangle className="h-4 w-4 mr-1.5" />
                 Fraud Detection
+              </button>
+              <button 
+                onClick={() => setActiveTab('treasury-ops')}
+                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              >
+                <BarChart className="h-4 w-4 mr-1.5" />
+                Treasury Ops
               </button>
               <button 
                 onClick={() => setActiveTab('compliance')}
@@ -160,6 +167,16 @@ const BankingHeader: React.FC = () => {
             >
               <AlertTriangle className="inline h-4 w-4 mr-1.5" />
               Fraud Detection
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('treasury-ops');
+                setIsMobileMenuOpen(false);
+              }}
+              className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium w-full text-left"
+            >
+              <BarChart className="inline h-4 w-4 mr-1.5" />
+              Treasury Ops
             </button>
             <button
               onClick={() => {
