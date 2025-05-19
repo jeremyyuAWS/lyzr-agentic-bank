@@ -6,7 +6,7 @@ import InterBankTransfers from './InterBankTransfers';
 import RegulatoryReporting from './RegulatoryReporting';
 import CapitalManagement from './CapitalManagement';
 import BaselCompliance from './BaselCompliance';
-import { MessageSquare, BarChart, Landmark, FileText, Landmark2, ShieldCheck } from 'lucide-react';
+import { MessageSquare, BarChart, Landmark, FileText, Landmark as Landmark2, ShieldCheck } from 'lucide-react';
 
 const TreasuryOpsWorkflow: React.FC = () => {
   const { updateTreasuryData } = useBankingContext();
