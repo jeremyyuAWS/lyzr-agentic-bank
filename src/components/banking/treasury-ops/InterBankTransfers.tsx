@@ -12,7 +12,8 @@ import {
   Globe,
   Calendar,
   DollarSign,
-  TrendingUp
+  TrendingUp,
+  Clock
 } from 'lucide-react';
 import * as d3 from 'd3';
 import { InterBankTransfer } from '../../../types/banking';
